@@ -17,7 +17,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    YEEEAH
+    YEEEAH2222
 };
 
 #endif // MAINWINDOW_H
