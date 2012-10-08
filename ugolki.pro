@@ -11,8 +11,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+    ugolkigui.cpp \
+    ugolkiframe.cpp
 
-HEADERS  += mainwindow.h
-
-FORMS    += mainwindow.ui
+HEADERS  +=     ugolkigui.h \
+    ugolkiframe.h \
+    variables.h
