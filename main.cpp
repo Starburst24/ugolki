@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     gui.setFixedWidth(650);
     gui.show();
 
-
+test from qt
 
     return a.exec();
 }
