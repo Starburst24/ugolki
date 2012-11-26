@@ -13,7 +13,7 @@ public:
 
 private:
 
-    char table[DESK_HEIGHT][DESK_WIDTH];
+    char matrix[DESK_SIZE * DESK_SIZE];
 
 signals:
 
