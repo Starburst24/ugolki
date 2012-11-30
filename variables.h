@@ -1,5 +1,15 @@
-#ifndef VARIABLES_H
+﻿#ifndef VARIABLES_H
 #define VARIABLES_H
+
+#define UGOLKI_MODES 3
+/*
+0 — игра с ботом
+1 — игра двух игроков за одним компьютером
+2 — игра двух игроков по сети
+*/
+#define UGOLKI_MODE_AI 0
+#define UGOLKI_MODE_MULTIPLAYER 1
+#define UGOLKI_MODE_NETWORK 2
 
 #define DESK_SIZE 8
 #define DESK_SIZE_PIXEL 320

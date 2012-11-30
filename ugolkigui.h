@@ -1,9 +1,12 @@
 #ifndef UGOLKIGUI_H
 #define UGOLKIGUI_H
 
+#include <QGridLayout>
+#include <QLayout>
+#include <QPushButton>
+#include <QSignalMapper>
+#include <QVBoxLayout>
 #include <QWidget>
-#include <QGraphicsView>
-#include <QGraphicsScene>
 #include <ugolkiframe.h>
 #include "variables.h"
 
@@ -14,13 +17,26 @@ public:
     explicit UgolkiGUI(QWidget *parent = 0);
 
 private:
-    QGraphicsView *view;
-    QGraphicsScene *scene;
+    /* Menu items */
+    QWidget menuWidget;
+    QList<QPushButton*> menuButtons; // list of all buttons
+    QSignalMapper *menuButtonsSignalMapper;
+    QVBoxLayout menuLayout;
+
+    /* Desk items */
+    QWidget deskWidget;
+    QList<QPushButton*> deskButtons; // list of all buttons
+    QSignalMapper *deskButtonsSignalMapper;
+    QVBoxLayout deskVerticalLayout;
+    QGridLayout deskLayout;
+
 
 private slots:
     void drawFrame(UgolkiFrame*);
-    void drawDesk();
-
+    void showDesk(int gameMode);
+    void showMenu();
+    void menuButtonClicked(const int &);
+    void deskButtonClicked(const int &);
 signals:
 
 public slots:

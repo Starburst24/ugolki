@@ -11,13 +11,16 @@ class UgolkiFrame : public QObject
 public:
     explicit UgolkiFrame(QObject *parent = 0);
 
-private:
 
-    char matrix[DESK_SIZE * DESK_SIZE];
+private:
+    char currentPlayersTurnId;
+    char matrix[DESK_SIZE][DESK_SIZE];
+    int turnCount;
 
 signals:
 
 public slots:
+    void movePiece(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
 
 };
 
