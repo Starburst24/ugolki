@@ -1,8 +1,26 @@
 ﻿#include "ugolkigui.h"
+#include "styles.h"
 
 UgolkiGUI::UgolkiGUI(QWidget *parent) :
     QWidget(parent)
 {
+
+    /* ************************************************************* */
+    /* Настраиваемокно уведомления */
+
+    notificationLayout.addWidget(&notificationLabel);
+    notificationLayout.addWidget(&notificationButton);
+
+    notificationButton.setText("Back to menu");
+
+    notificationWidget.setLayout(&notificationLayout);
+    notificationWidget.setWindowTitle("Ugolki - Notification");
+
+    connect(&notificationButton, SIGNAL(clicked()), SLOT(showMenu()));
+    /* Закончили настраивать окно уведомления */
+    /* ************************************************************* */
+
+
     /* ************************************************************* */
     /* Настраиваем главное меню */
     menuButtonsSignalMapper = new QSignalMapper();
@@ -49,6 +67,9 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
 
     /* ************************************************************* */
     /* Настраиваем доску */
+    deskWidget = this;
+
+    deskWidget->sizePolicy().setHeightForWidth(true);
     deskButtonsSignalMapper = new QSignalMapper();
 
     /* Создаем кнопки игрового поля и прикручиваем их к карте кнопок */
@@ -59,6 +80,8 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
 
         /* Создаем новую кнопку поля и заносим ее в список */
         deskButtons << new QPushButton;
+
+        deskButtons[buttonId]->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
         /* Соединяем её с картой кнопок игрового поля */
         connect(deskButtons[buttonId], SIGNAL(clicked()), deskButtonsSignalMapper, SLOT(map()));
@@ -74,8 +97,30 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     connect(deskButtonsSignalMapper, SIGNAL(mapped(const int &)),
             this, SLOT(deskButtonClicked(const int &)));
 
+    styleDarkForPlayer << &styleDarkPlayer1;
+    styleDarkForPlayer << &styleDarkPlayer2;
+    styleBrightForPlayer << &styleBrightPlayer1;
+    styleBrightForPlayer << &styleBrightPlayer2;
+
+
+    deskLayout.setSpacing(0);
+
+    deskWidget->sizePolicy().setHeightForWidth(true);
+
+
     deskVerticalLayout.insertLayout(0, &deskLayout);
-    deskWidget.setLayout(&deskVerticalLayout);
+
+    informationTextEdit.setEnabled(false);
+    informationTextEdit.setMaximumHeight(70);
+    QHBoxLayout *messageLayout = new QHBoxLayout;
+    messageLayout->addWidget(&messageEdit);
+    messageLayout->addWidget(&okButton);
+    okButton.setText("Send");
+
+
+    deskVerticalLayout.insertWidget(1, &informationTextEdit);
+    deskVerticalLayout.insertLayout(2, messageLayout);
+    deskWidget->setLayout(&deskVerticalLayout);
     /* Закончили настраивать доску */
     /* ************************************************************* */
 
@@ -85,69 +130,86 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
 
 }
 
+void UgolkiGUI::resizeEvent(QResizeEvent *event){
+
+
+
+}
+
+void UgolkiGUI::showNotification(QString message){
+
+    notificationLabel.setText(message);
+
+    deskWidget->hide();
+    menuWidget.hide();
+    notificationWidget.show();
+
+
+}
+
+
 void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
+
+    for (int i = 0; i < DESK_SIZE; i++)
+        for (int j = 0; j < DESK_SIZE; j++){
+            int playerPieceOnCurrentCell = frame->matrix[i][j];
+            if (playerPieceOnCurrentCell == -1){
+                if ((j + i)%2 == 0)
+                    deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer.first());
+                else
+                    deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleDarkForPlayer.first());
+                continue;
+            }
+
+            deskButtons[i * DESK_SIZE + j]->setText("0");
+
+            if ((j + i)%2 == 0)
+                deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer[playerPieceOnCurrentCell]);
+            else
+                deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleDarkForPlayer[playerPieceOnCurrentCell]);
+        }
+
 }
 
-void UgolkiGUI::showDesk(int gameMode){
-
-    switch (gameMode){
-
-
-    case UGOLKI_MODE_AI: /* Artificial Intelligence mode */
-        deskWidget.setWindowTitle("Ugolki - Artificial Intelligence Mode");
-        break;
-
-
-    case UGOLKI_MODE_MULTIPLAYER:   /* Multiplayer mode */
-
-        deskWidget.setWindowTitle("Ugolki - Multiplayer Mode");
-        break;
-
-
-    case UGOLKI_MODE_NETWORK: /* Network mode */
-
-        deskWidget.setWindowTitle("Ugolki - Network Mode");
-        break;
-    }
-
-
-    deskWidget.show();
-    menuWidget.hide();
-}
 
 void UgolkiGUI::showMenu(){
-    deskWidget.hide();
+    notificationWidget.hide();
+    deskWidget->hide();
     menuWidget.show();
 }
 
 void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
 
-    menuWidget.show();
-    deskWidget.hide();
+    showNotification("Game over");
+    menuWidget.hide();
+    deskWidget->hide();
 }
 
 void UgolkiGUI::menuButtonClicked(const int &clickedButtonId){
+    menuWidget.hide();
     switch (clickedButtonId){
 
 
     case UGOLKI_MODE_AI: /* Artificial Intelligence mode */
-
+        showNotification("Not implemented yet");
         break;
 
 
     case UGOLKI_MODE_MULTIPLAYER:   /* Multiplayer mode */
 
-
+        deskWidget->show();
+        model.currentFrame.resetFrame();
+        drawFrame(&model.currentFrame);
         break;
 
 
     case UGOLKI_MODE_NETWORK: /* Network mode */
 
-
+        showNotification("Not implemented yet");
         break;
     }
-    showDesk(clickedButtonId);
-    menuWidget.hide();
+
+
 
 }

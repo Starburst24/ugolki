@@ -12,8 +12,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     ugolkigui.cpp \
-    ugolkiframe.cpp
+    ugolkiframe.cpp \
+    ugolkimodel.cpp \
+    ugolkinetwork.cpp
 
 HEADERS  +=     ugolkigui.h \
     ugolkiframe.h \
-    variables.h
+    variables.h \
+    ugolkimodel.h \
+    ugolkinetwork.h \
+    styles.h
