@@ -2,7 +2,7 @@
 #define UGOLKIMODEL_H
 
 #include <QObject>
-#include <ugolkiframe.h>
+#include "ugolkiframe.h"
 
 class UgolkiModel : public QObject
 {

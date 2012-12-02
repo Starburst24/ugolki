@@ -132,7 +132,7 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
 
 void UgolkiGUI::resizeEvent(QResizeEvent *event){
 
-
+  //  drawFrame(&model.currentFrame);
 
 }
 
@@ -150,10 +150,13 @@ void UgolkiGUI::showNotification(QString message){
 
 void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
+    QFont font;
+    font.setPixelSize(deskButtons.first()->width());
 
     for (int i = 0; i < DESK_SIZE; i++)
         for (int j = 0; j < DESK_SIZE; j++){
             int playerPieceOnCurrentCell = frame->matrix[i][j];
+            deskButtons[i * DESK_SIZE + j]->setFont(font);
             if (playerPieceOnCurrentCell == -1){
                 if ((j + i)%2 == 0)
                     deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer.first());
@@ -162,12 +165,15 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
                 continue;
             }
 
-            deskButtons[i * DESK_SIZE + j]->setText("0");
+            deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
+
 
             if ((j + i)%2 == 0)
                 deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer[playerPieceOnCurrentCell]);
             else
                 deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleDarkForPlayer[playerPieceOnCurrentCell]);
+
+
         }
 
 }

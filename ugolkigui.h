@@ -12,7 +12,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include <ugolkimodel.h>
+#include "ugolkimodel.h"
 #include "variables.h"
 
 
