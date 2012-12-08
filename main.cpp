@@ -8,9 +8,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    UgolkiGUI gui;
-    UgolkiModel model;
     UgolkiNetwork network;
+    UgolkiAI ai;
+    UgolkiModel model(&network, &ai);
+    UgolkiGUI gui(&model, &network);
+
+
 
 
     return a.exec();

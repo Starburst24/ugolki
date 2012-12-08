@@ -22,6 +22,7 @@ private:
 
 
 signals:
+    void frameChanged(UgolkiFrame* thisFrame);
 
 public slots:
     void resetFrame();

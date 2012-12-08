@@ -1,124 +1,20 @@
 #ifndef STYLES_H
 #define STYLES_H
 
-#include <QList>
-#include <QString>
+//файл описывающий стиль оформления приложения
 
+#define COLOR_WHITE "#FFFFFF"
+#define COLOR_BLACK "#EEEEEE"
+#define COLOR_CELL_SELECTED "#AA3377"
 
+#define COLOR_PLAYER_1 "#CC6633"
+#define COLOR_PRESSED_PLAYER_1 "#BB5522"
+#define COLOR_DISABLED_PLAYER_1 "#AA4411"
 
-
-const QString styleBrightPlayer1 ( "QPushButton {"
-                                         "border: 1px solid #888888;"
-                                         "border-radius: 1px;"
-
-                                         "color: #CC6633;"
-                                         "background-color: #FFFFFF;"
-                                     "}"
-
-                                     "QPushButton:pressed {"
-                                         "border: 1px solid #888888;"
-                                         "border-radius: 1px;"
-                                         "color: #BB5522;"
-                                         "background-color: #EEEEEE;"
-
-                                     "}"
-
-                                        "QPushButton:disabled {"
-                                             "border: 1px solid #888888;"
-                                             "border-radius: 1px;"
-                                              "color: #AA4411;"
-                                             "background-color: #FFFFFF;"
-
-                                         "}"
-
-                                     "QPushButton:flat {"
-                                         "border: none; "
-                                     "}");
-
-
-const QString styleBrightPlayer2(  "QPushButton {"
-                             "border: 1px solid #888888;"
-                             "border-radius: 1px;"
-
-                             "color: #EEEEBB;"
-                             "background-color: #FFFFFF;"
-                         "}"
-
-                         "QPushButton:pressed {"
-                             "border: 1px solid #888888;"
-                             "border-radius: 1px;"
-                             "color: #BB5522;"
-                             "background-color: #EEEEEE;"
-
-                         "}"
-
-                            "QPushButton:disabled {"
-                                 "border: 1px solid #888888;"
-                                 "border-radius: 1px;"
-                                  "color: #CCCC99;"
-                                 "background-color: #FFFFFF;"
-
-                             "}"
-
-                         "QPushButton:flat {"
-                             "border: none; "
-                         "}");
-
-const QString styleDarkPlayer1 ( "QPushButton {"
-                                         "border: 1px solid #888888;"
-                                         "border-radius: 1px;"
-
-                                         "color: #CC6633;"
-                                         "background-color: #505050;"
-                                     "}"
-
-                                     "QPushButton:pressed {"
-                                         "border: 1px solid #888888;"
-                                         "border-radius: 1px;"
-                                         "color: #BB5522;"
-                                         "background-color: #606060;"
-
-                                     "}"
-
-                                        "QPushButton:disabled {"
-                                             "border: 1px solid #888888;"
-                                             "border-radius: 1px;"
-                                              "color: #AA4411;"
-                                             "background-color: #505050;"
-
-                                         "}"
-
-                                     "QPushButton:flat {"
-                                         "border: none; "
-                                     "}");
-
-const QString styleDarkPlayer2(  "QPushButton {"
-                             "border: 1px solid #888888;"
-                             "border-radius: 1px;"
-
-                             "color: #EEEEBB;"
-                             "background-color: #505050;"
-                         "}"
-
-                         "QPushButton:pressed {"
-                             "border: 1px solid #888888;"
-                             "border-radius: 1px;"
-                             "color: #BB5522;"
-                             "background-color: #606060;"
-
-                         "}"
-
-                            "QPushButton:disabled {"
-                                 "border: 1px solid #888888;"
-                                 "border-radius: 1px;"
-                                  "color: #CCCC99;"
-                                 "background-color: #505050;"
-
-                             "}"
-
-                         "QPushButton:flat {"
-                             "border: none; "
-                         "}");
+#define COLOR_PLAYER_2 "#000000"
+//"#EEEEBB"
+#define COLOR_PRESSED_PLAYER_2 "#DDDDAA"
+#define COLOR_DISABLED_PLAYER_2 "#CCCC99"
 
 
 

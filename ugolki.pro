@@ -14,11 +14,13 @@ SOURCES += main.cpp\
     ugolkigui.cpp \
     ugolkiframe.cpp \
     ugolkimodel.cpp \
-    ugolkinetwork.cpp
+    ugolkinetwork.cpp \
+    ugolkiai.cpp
 
 HEADERS  +=     ugolkigui.h \
     ugolkiframe.h \
     variables.h \
     ugolkimodel.h \
     ugolkinetwork.h \
-    styles.h
+    styles.h \
+    ugolkiai.h

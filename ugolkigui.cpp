@@ -1,9 +1,12 @@
 ﻿#include "ugolkigui.h"
 #include "styles.h"
 
-UgolkiGUI::UgolkiGUI(QWidget *parent) :
+UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *parent) :
     QWidget(parent)
 {
+
+    model = modelRef;
+    network = networkRef;
 
     /* ************************************************************* */
     /* Настраиваемокно уведомления */
@@ -11,11 +14,20 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     notificationLayout.addWidget(&notificationLabel);
     notificationLayout.addWidget(&notificationButton);
 
-    notificationButton.setText("Back to menu");
+    QFont notificationFont;
+    notificationFont.setPixelSize(NOTIFICATION_FONT_SIZE_PIXEL);
+
+    //notificationButton.setFont(notificationFont);
+    notificationLabel.setFont(notificationFont);
+
+    notificationButton.setText(STRING_BACK_TO_MENU);
+
 
     notificationWidget.setLayout(&notificationLayout);
-    notificationWidget.setWindowTitle("Ugolki - Notification");
+    notificationWidget.setWindowTitle(STRING_APPLICATION_NAME
+                                      " - " STRING_NOTIFICATION);
 
+    connect(model, SIGNAL(gameOver(QString)), SLOT(showNotification(QString)));
     connect(&notificationButton, SIGNAL(clicked()), SLOT(showMenu()));
     /* Закончили настраивать окно уведомления */
     /* ************************************************************* */
@@ -28,12 +40,20 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     /* Для каждого режима нужно создать кнопку и прикрутить ее к карте кнопок */
     /* а также к вертикальному лейауту */
 
+
+    QFont menuButtonsFont;
+    menuButtonsFont.setPixelSize(MENU_BUTTONS_FONT_SIZE_PIXEL);
+
+
     /* Для всех кнопок режима */
     for (int buttonId = 0; buttonId < UGOLKI_MODES; buttonId++){
 
         /* Создаем новую кнопку режима и заносим ее в список кнопок меню */
         menuButtons << new QPushButton;
 
+        menuButtons[buttonId]->setFont(menuButtonsFont);
+        menuButtons[buttonId]->setFixedHeight(MENU_BUTTONS_HEIGHT_FOR_FONT_MULTIPLICATOR *
+                                              MENU_BUTTONS_FONT_SIZE_PIXEL);
         /* Соединяем её с картой кнопок меню */
         connect(menuButtons[buttonId], SIGNAL(clicked()), menuButtonsSignalMapper, SLOT(map()));
         menuButtonsSignalMapper->setMapping(menuButtons[buttonId], buttonId);
@@ -44,12 +64,10 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     }
 
     /* Называем и настраиваем кнопки */
-    menuButtons[UGOLKI_MODE_AI]->setText("Game with A.I.");
-    menuButtons[UGOLKI_MODE_NETWORK]->setText("Network game");
-    menuButtons[UGOLKI_MODE_MULTIPLAYER]->setText("Two-players game");
-    for (int buttonId = 0; buttonId < UGOLKI_MODES; buttonId++){
-        menuButtons[buttonId]->setFixedSize(300, 100);
-    }
+    menuButtons[UGOLKI_MODE_AI]->setText(STRING_MODE_AI);
+    menuButtons[UGOLKI_MODE_NETWORK]->setText(STRING_MODE_NETWORK);
+    menuButtons[UGOLKI_MODE_MULTIPLAYER]->setText(STRING_MODE_MULTIPLAYER);
+
 
     /* Карта кнопок соединяется с обработчиком нажатий. Обработчик в зависимости от */
     /* нажатия организует нужный режим */
@@ -60,7 +78,7 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     menuWidget.setLayout(&menuLayout);
     menuWidget.setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 
-    menuWidget.setWindowTitle("Ugolki - Main Menu");
+    menuWidget.setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MAIN_MENU);
     /* Закончили настраивать главное меню */
     /* ************************************************************* */
 
@@ -69,7 +87,7 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     /* Настраиваем доску */
     deskWidget = this;
 
-    deskWidget->sizePolicy().setHeightForWidth(true);
+    deskWidget->setFixedSize(0, 0);
     deskButtonsSignalMapper = new QSignalMapper();
 
     /* Создаем кнопки игрового поля и прикручиваем их к карте кнопок */
@@ -97,25 +115,23 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
     connect(deskButtonsSignalMapper, SIGNAL(mapped(const int &)),
             this, SLOT(deskButtonClicked(const int &)));
 
-    styleDarkForPlayer << &styleDarkPlayer1;
-    styleDarkForPlayer << &styleDarkPlayer2;
-    styleBrightForPlayer << &styleBrightPlayer1;
-    styleBrightForPlayer << &styleBrightPlayer2;
 
 
-    deskLayout.setSpacing(0);
 
-    deskWidget->sizePolicy().setHeightForWidth(true);
-
+    //deskLayout.setSpacing(0);
 
     deskVerticalLayout.insertLayout(0, &deskLayout);
 
-    informationTextEdit.setEnabled(false);
-    informationTextEdit.setMaximumHeight(70);
+    informationTextEdit.setReadOnly(true);
+
+    informationTextEdit.setMaximumHeight(DESK_INFORMATION_TABLE_PIXEL_HEIGHT);
+
     QHBoxLayout *messageLayout = new QHBoxLayout;
     messageLayout->addWidget(&messageEdit);
     messageLayout->addWidget(&okButton);
-    okButton.setText("Send");
+    okButton.setText(STRING_BUTTON_SEND);
+
+    connect(&okButton, SIGNAL(clicked()), SLOT(sendMessageButtonClicked()));
 
 
     deskVerticalLayout.insertWidget(1, &informationTextEdit);
@@ -132,7 +148,7 @@ UgolkiGUI::UgolkiGUI(QWidget *parent) :
 
 void UgolkiGUI::resizeEvent(QResizeEvent *event){
 
-  //  drawFrame(&model.currentFrame);
+    //  drawFrame(&model.currentFrame);
 
 }
 
@@ -151,30 +167,38 @@ void UgolkiGUI::showNotification(QString message){
 void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
     QFont font;
-    font.setPixelSize(deskButtons.first()->width());
+    font.setPixelSize(DESK_CELL_FONT_PIXEL_SIZE);
+    int cellSize = DESK_SIZE_PIXEL / DESK_SIZE;
 
-    for (int i = 0; i < DESK_SIZE; i++)
+    for (int i = 0; i < DESK_SIZE; i++){
+        deskLayout.setColumnStretch(i, 1);
+        deskLayout.setRowStretch(i, 1);
         for (int j = 0; j < DESK_SIZE; j++){
             int playerPieceOnCurrentCell = frame->matrix[i][j];
+            bool isSelectable = false;
+
+
+
+            if (pieceSelected == false && !model->currentFrame.possibleMoves[i][j].isEmpty() )
+                isSelectable = true;
+
+            if (pieceSelected == true && model->currentFrame.possibleMoves[selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
+                isSelectable = true;
+
             deskButtons[i * DESK_SIZE + j]->setFont(font);
-            if (playerPieceOnCurrentCell == -1){
-                if ((j + i)%2 == 0)
-                    deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer.first());
-                else
-                    deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleDarkForPlayer.first());
-                continue;
-            }
+            deskButtons[i * DESK_SIZE + j]->setFixedSize(cellSize, cellSize);
+            deskButtons[i * DESK_SIZE + j]->setEnabled(isSelectable);
+            deskButtons[i * DESK_SIZE + j]->setStyleSheet(getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelectable));
 
-            deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
-
-
-            if ((j + i)%2 == 0)
-                deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleBrightForPlayer[playerPieceOnCurrentCell]);
+            if (playerPieceOnCurrentCell != UGOLKI_PLAYER_EMPTY)
+                deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
             else
-                deskButtons[i * DESK_SIZE + j]->setStyleSheet(*styleDarkForPlayer[playerPieceOnCurrentCell]);
+                deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8(""));
+
 
 
         }
+    }
 
 }
 
@@ -187,35 +211,129 @@ void UgolkiGUI::showMenu(){
 
 void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
 
-    showNotification("Game over");
-    menuWidget.hide();
-    deskWidget->hide();
+    /* выбираем фишку для зода если не выбрана */
+    if (!pieceSelected){
+        selectedPiece = clickedButtonId;
+
+        pieceSelected = !pieceSelected;
+        drawFrame(&model->currentFrame);
+        return;
+    }
+
+    /* выбираем другую фишку для хода если уже была выбрана другая */
+    if (model->currentFrame.matrix[clickedButtonId / DESK_SIZE][clickedButtonId % DESK_SIZE]
+            == model->currentFrame.currentPlayersTurnId) {
+        selectedPiece = clickedButtonId;
+        drawFrame(&model->currentFrame);
+        return;
+    }
+
+    /* нашли куда сходить - и ходим */
+    pieceSelected = !pieceSelected;
+    model->turnHandler(selectedPiece / DESK_SIZE,
+                       selectedPiece % DESK_SIZE,
+                       clickedButtonId / DESK_SIZE,
+                       clickedButtonId % DESK_SIZE);
+
 }
 
-void UgolkiGUI::menuButtonClicked(const int &clickedButtonId){
+void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
+
     menuWidget.hide();
-    switch (clickedButtonId){
+    gameMode = clickedButtonId;
+    pieceSelected = false;
+
+    switch (clickedButtonId) {
 
 
     case UGOLKI_MODE_AI: /* Artificial Intelligence mode */
-        showNotification("Not implemented yet");
+        deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_AI);
+        model->currentFrame.resetFrame();
+        deskWidget->show();
         break;
 
 
     case UGOLKI_MODE_MULTIPLAYER:   /* Multiplayer mode */
 
+        connect(&model->currentFrame,
+                SIGNAL(frameChanged(UgolkiFrame*)),
+                SLOT(drawFrame(UgolkiFrame*)));
+        deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_MULTIPLAYER);
+        model->currentFrame.resetFrame();
         deskWidget->show();
-        model.currentFrame.resetFrame();
-        drawFrame(&model.currentFrame);
         break;
 
 
     case UGOLKI_MODE_NETWORK: /* Network mode */
-
-        showNotification("Not implemented yet");
+        deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_NETWORK);
+        showNotification(STRING_NOT_IMPLEMENTED);
         break;
     }
 
+}
 
+const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelectable){
 
+    QString pieceColor, pressedPieceColor;
+    switch (playerId){
+
+    default:
+    case 0:
+        pressedPieceColor = COLOR_PRESSED_PLAYER_1;
+        pieceColor = COLOR_PLAYER_1;
+        break;
+    case 1:
+        pressedPieceColor = COLOR_PRESSED_PLAYER_2;
+        pieceColor = COLOR_PLAYER_2;
+        break;
+
+    }
+
+    QString cellColor;
+
+    if (isSelectable) {
+        cellColor = COLOR_CELL_SELECTED;
+    } else
+        if (isWhiteCell)
+            cellColor = COLOR_BLACK;
+        else
+            cellColor = COLOR_WHITE;
+
+    const QString genericStyleSheet ("QPushButton {"
+                                     "border: 1px solid #888888;"
+                                     "border-radius: 1px;"
+                                     "text-align: center;"
+                                     "color: " + pieceColor + ";"
+                                     "background-color: " + cellColor + ";"
+                                     "}"
+
+                                     "QPushButton:pressed {"
+                                     "border: 1px solid #888888;"
+                                     "border-radius: 1px;"
+                                     "color: " + pressedPieceColor + ";"
+                                     "background-color: " + cellColor + ";"
+
+                                     "}"
+
+                                     "QPushButton:disabled {"
+                                     "border: 1px solid #888888;"
+                                     "border-radius: 1px;"
+                                     "color: " + pieceColor + ";"
+                                     "background-color: " + cellColor + ";"
+
+                                     "}"
+
+                                     "QPushButton:flat {"
+                                     "border: none; "
+                                     "}");
+
+    return genericStyleSheet;
+}
+
+void UgolkiGUI::sendMessageButtonClicked(){
+    infoPrint(messageEdit.text() + QString("\n"));
+}
+
+void UgolkiGUI::infoPrint(QString string){
+    informationTextEdit.insertPlainText(string);
 }

@@ -3,12 +3,19 @@
 
 #include <QObject>
 #include "ugolkiframe.h"
+#include "ugolkinetwork.h"
+#include "ugolkiai.h"
+
 
 class UgolkiModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit UgolkiModel(QObject *parent = 0);
+    explicit UgolkiModel(UgolkiNetwork *network, UgolkiAI *ai, QObject *parent = 0);
+
+private:
+    UgolkiNetwork *network;
+    UgolkiAI *ai;
 
 signals:
     void gameOver(QString reason);
@@ -18,12 +25,13 @@ public:
 
 private slots:
     void gameOverHandler();
-    void turnHandler(int oldPosRow, int oldPosColumn,
-                     int newPosRow, int newPosColumn);
+
 
 
 public slots:
     void calculatePossibleMoves(UgolkiFrame *someFrame);
+    void turnHandler(int oldPosRow, int oldPosColumn,
+                     int newPosRow, int newPosColumn);
 
 
 };
