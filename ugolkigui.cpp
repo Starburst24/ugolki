@@ -118,11 +118,12 @@ UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *
 
 
 
-    //deskLayout.setSpacing(0);
+    deskLayout.setSpacing(0);
 
     deskVerticalLayout.insertLayout(0, &deskLayout);
 
     informationTextEdit.setReadOnly(true);
+
 
     informationTextEdit.setMaximumHeight(DESK_INFORMATION_TABLE_PIXEL_HEIGHT);
 
@@ -146,11 +147,7 @@ UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *
 
 }
 
-void UgolkiGUI::resizeEvent(QResizeEvent *event){
 
-    //  drawFrame(&model.currentFrame);
-
-}
 
 void UgolkiGUI::showNotification(QString message){
 
@@ -176,19 +173,24 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
         for (int j = 0; j < DESK_SIZE; j++){
             int playerPieceOnCurrentCell = frame->matrix[i][j];
             bool isSelectable = false;
+            bool isReselectable = false;
 
+            if (pieceSelected == true &&
+                    model->currentFrame.matrix[i][j] == model->currentFrame.currentPlayersTurnId &&
+                    !model->currentFrame.possibleMoves[i][j].isEmpty())
+                isReselectable = isSelectable = true;
 
-
-            if (pieceSelected == false && !model->currentFrame.possibleMoves[i][j].isEmpty() )
+            if (pieceSelected == false && !model->currentFrame.possibleMoves[i][j].isEmpty())
                 isSelectable = true;
 
-            if (pieceSelected == true && model->currentFrame.possibleMoves[selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
+            if (pieceSelected == true && model->currentFrame.possibleMoves
+                    [selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
                 isSelectable = true;
 
             deskButtons[i * DESK_SIZE + j]->setFont(font);
             deskButtons[i * DESK_SIZE + j]->setFixedSize(cellSize, cellSize);
             deskButtons[i * DESK_SIZE + j]->setEnabled(isSelectable);
-            deskButtons[i * DESK_SIZE + j]->setStyleSheet(getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelectable));
+            deskButtons[i * DESK_SIZE + j]->setStyleSheet(getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelectable, isReselectable));
 
             if (playerPieceOnCurrentCell != UGOLKI_PLAYER_EMPTY)
                 deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
@@ -199,6 +201,8 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
         }
     }
+
+    infoPrint(tr("Current turn: %1").arg(model->currentFrame.turnCount));
 
 }
 
@@ -211,7 +215,7 @@ void UgolkiGUI::showMenu(){
 
 void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
 
-    /* выбираем фишку для зода если не выбрана */
+    /* выбираем фишку для хода если не выбрана */
     if (!pieceSelected){
         selectedPiece = clickedButtonId;
 
@@ -243,12 +247,16 @@ void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
     gameMode = clickedButtonId;
     pieceSelected = false;
 
+    okButton.hide();
+    messageEdit.hide();
+
     switch (clickedButtonId) {
 
 
     case UGOLKI_MODE_AI: /* Artificial Intelligence mode */
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_AI);
         model->currentFrame.resetFrame();
+
         deskWidget->show();
         break;
 
@@ -267,12 +275,14 @@ void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
     case UGOLKI_MODE_NETWORK: /* Network mode */
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_NETWORK);
         showNotification(STRING_NOT_IMPLEMENTED);
+        okButton.show();
+        messageEdit.show();
         break;
     }
 
 }
 
-const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelectable){
+const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelectable, bool isReselectable){
 
     QString pieceColor, pressedPieceColor;
     switch (playerId){
@@ -293,6 +303,8 @@ const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSe
 
     if (isSelectable) {
         cellColor = COLOR_CELL_SELECTED;
+        if (isReselectable)
+            cellColor = COLOR_CELL_RESELECTABLE;
     } else
         if (isWhiteCell)
             cellColor = COLOR_BLACK;
@@ -335,5 +347,5 @@ void UgolkiGUI::sendMessageButtonClicked(){
 }
 
 void UgolkiGUI::infoPrint(QString string){
-    informationTextEdit.insertPlainText(string);
+    informationTextEdit.appendPlainText(tr("%1").arg(string));
 }

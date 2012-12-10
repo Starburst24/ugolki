@@ -31,6 +31,7 @@ void UgolkiFrame::movePiece(int oldPosRow, int oldPosColumn,
 void UgolkiFrame::resetFrame(){
 
     currentPlayersTurnId = UGOLKI_PLAYER_1;
+    turnCount = 0;
 
     for (int i = 0; i < DESK_SIZE; i++)
         for (int j = 0; j < DESK_SIZE; j++)
@@ -55,4 +56,21 @@ bool UgolkiFrame::validateMove(int oldPosRow, int oldPosColumn,
     QPair<int, int> pair(newPosRow, newPosColumn);
     return possibleMoves[oldPosRow][oldPosColumn].contains(pair);
 
+}
+
+#include <cstdio>
+void UgolkiFrame::moves()
+{
+
+    for(int i = 0; i < 8; i++)
+        for(int j = 0; j < 8; j++)
+        {
+            printf("%d: ", i * DESK_SIZE + j);
+            for(int k = 0; k < this->possibleMoves[i][j].length(); k++)
+            {
+                printf("'%d'-", this->possibleMoves[i][j].operator [](k).first);
+                printf("'%d'\t ", this->possibleMoves[i][j].operator [](k).second);
+            }
+            printf("\n");
+        }
 }

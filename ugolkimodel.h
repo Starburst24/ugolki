@@ -17,6 +17,16 @@ private:
     UgolkiNetwork *network;
     UgolkiAI *ai;
 
+    bool checkBoundsOfSquare(int currentRow, int currentColumn);
+    void clearVisited(bool visitedSquares[DESK_SIZE][DESK_SIZE]);
+    void watchNeighboringSquares(int currentRow, int currentColumn, UgolkiFrame *currentFrame);
+    void searchForJumps(int currentRow,
+                        int currentColumn,
+                        UgolkiFrame *currentFrame,
+                        bool visitedSquares[DESK_SIZE][DESK_SIZE],
+                        int *firstSquare);
+
+
 signals:
     void gameOver(QString reason);
 
@@ -29,7 +39,7 @@ private slots:
 
 
 public slots:
-    void calculatePossibleMoves(UgolkiFrame *someFrame);
+    void calculatePossibleMoves(UgolkiFrame *currentFrame);
     void turnHandler(int oldPosRow, int oldPosColumn,
                      int newPosRow, int newPosColumn);
 

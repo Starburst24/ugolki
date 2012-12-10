@@ -17,7 +17,10 @@ public:
     char matrix[ DESK_SIZE ][ DESK_SIZE ];
     int turnCount;
 
+
+void moves();
 private:
+
 
 
 
