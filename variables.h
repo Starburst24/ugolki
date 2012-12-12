@@ -14,11 +14,17 @@
 
 #define UGOLKI_PLAYER_1 0
 #define UGOLKI_PLAYER_2 1
+#define UGOLKI_BOT 1
 #define UGOLKI_PLAYER_EMPTY -1
 
 #define UGOLKI_MAXPLAYERS 2
 
+/* criteria importance */
+#define AI_GAME_TREE_DEPTH 2
 
+#define AI_CRITERIA_DISTANCE_TO_HOUSE 1.0
+#define AI_CRITERIA_PIECES_IN_HOUSE 5.0
+#define AI_CRITERIA_HOUSE_PUNISHMENT 0.0003
 
 /* *********************************** */
 
@@ -36,14 +42,8 @@
 
 #define DESK_INFORMATION_TABLE_PIXEL_HEIGHT 70
 
-#define UGOLKI_HOUSE_WIDTH 4
+#define UGOLKI_HOUSE_WIDTH 3
 #define UGOLKI_HOUSE_HEIGHT 3
-
-#define DESK_VERTICAL_OFFSET_PIXELS 100
-#define DESK_HORIZONTAL_OFFSET_PIXELS 100
-
-#define SCENE_WIDTH 640
-#define SCENE_HEIGHT 480
 
 #define STRING_MODE_NETWORK "Network Game"
 #define STRING_MODE_AI "Artificial Intelligence"
@@ -55,6 +55,8 @@
 #define STRING_NOTIFICATION "Notification"
 #define STRING_BUTTON_SEND "Send"
 
+#define STRING_YOU_LOST "Game over. You lost"
+#define STRING_YOU_WON "Congratulations! You won!"
 #define STRING_DRAW "Nobody won!"
 #define STRING_PLAYER "Player"
 #define STRING_WON "is the winner!"

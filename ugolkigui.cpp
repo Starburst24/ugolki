@@ -133,11 +133,16 @@ UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *
     okButton.setText(STRING_BUTTON_SEND);
 
     connect(&okButton, SIGNAL(clicked()), SLOT(sendMessageButtonClicked()));
-
+    connect(model, SIGNAL(modelMessage(QString)), SLOT(infoPrint(QString)));
 
     deskVerticalLayout.insertWidget(1, &informationTextEdit);
     deskVerticalLayout.insertLayout(2, messageLayout);
     deskWidget->setLayout(&deskVerticalLayout);
+
+    connect(&model->currentFrame,
+            SIGNAL(frameChanged(UgolkiFrame*)),
+            SLOT(drawFrame(UgolkiFrame*)));
+
     /* Закончили настраивать доску */
     /* ************************************************************* */
 
@@ -187,6 +192,12 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
                     [selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
                 isSelectable = true;
 
+            if (gameMode == UGOLKI_MODE_AI &&
+                    model->currentFrame.currentPlayersTurnId != UGOLKI_PLAYER_1){
+                isSelectable = false;
+
+            }
+
             deskButtons[i * DESK_SIZE + j]->setFont(font);
             deskButtons[i * DESK_SIZE + j]->setFixedSize(cellSize, cellSize);
             deskButtons[i * DESK_SIZE + j]->setEnabled(isSelectable);
@@ -202,7 +213,7 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
         }
     }
 
-    infoPrint(tr("Current turn: %1").arg(model->currentFrame.turnCount));
+    //infoPrint(tr("Current turn: %1").arg(model->currentFrame.turnCount));
 
 }
 
@@ -244,8 +255,12 @@ void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
 void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
 
     menuWidget.hide();
+
     gameMode = clickedButtonId;
+    model->gameMode = gameMode;
+
     pieceSelected = false;
+    informationTextEdit.clear();
 
     okButton.hide();
     messageEdit.hide();
@@ -263,9 +278,7 @@ void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
 
     case UGOLKI_MODE_MULTIPLAYER:   /* Multiplayer mode */
 
-        connect(&model->currentFrame,
-                SIGNAL(frameChanged(UgolkiFrame*)),
-                SLOT(drawFrame(UgolkiFrame*)));
+
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_MULTIPLAYER);
         model->currentFrame.resetFrame();
         deskWidget->show();

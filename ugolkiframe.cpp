@@ -3,6 +3,30 @@
 UgolkiFrame::UgolkiFrame(QObject *parent) :
     QObject(parent)
 {
+    //SOUTH EAST
+    playerHouse[UGOLKI_PLAYER_1] = qMakePair(DESK_SIZE - 1, DESK_SIZE - 1);
+    //NORTH WEST
+    playerHouse[UGOLKI_PLAYER_2] = qMakePair(0, 0);
+}
+
+UgolkiFrame::UgolkiFrame(const UgolkiFrame *frameToClone){
+
+    //SOUTH EAST
+    playerHouse[UGOLKI_PLAYER_1] = qMakePair(DESK_SIZE - 1, DESK_SIZE - 1);
+    //NORTH WEST
+    playerHouse[UGOLKI_PLAYER_2] = qMakePair(0, 0);
+
+    this->turnCount = frameToClone->turnCount;
+    this->currentPlayersTurnId = frameToClone->currentPlayersTurnId;
+    for (int i = 0; i < DESK_SIZE; i++)
+        for (int j = 0; j < DESK_SIZE; j++){
+            possibleMoves[i][j] = frameToClone->possibleMoves[i][j];
+            matrix[i][j] = frameToClone->matrix[i][j];
+        }
+
+
+    //memcpy(this, frameToClone, sizeof(*frameToClone));
+
 }
 
 void UgolkiFrame::movePiece(int oldPosRow, int oldPosColumn,
@@ -30,12 +54,15 @@ void UgolkiFrame::movePiece(int oldPosRow, int oldPosColumn,
 
 void UgolkiFrame::resetFrame(){
 
+
     currentPlayersTurnId = UGOLKI_PLAYER_1;
     turnCount = 0;
 
     for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++)
+        for (int j = 0; j < DESK_SIZE; j++){
+            possibleMoves[i][j].clear();
             matrix[i][j] = UGOLKI_PLAYER_EMPTY;
+        }
 
 
     for (int i = 0; i < UGOLKI_HOUSE_HEIGHT; i++)
@@ -46,7 +73,7 @@ void UgolkiFrame::resetFrame(){
 
 
 
-        frameChanged(this);
+    frameChanged(this);
 }
 
 
@@ -58,19 +85,16 @@ bool UgolkiFrame::validateMove(int oldPosRow, int oldPosColumn,
 
 }
 
-#include <cstdio>
-void UgolkiFrame::moves()
-{
-
-    for(int i = 0; i < 8; i++)
-        for(int j = 0; j < 8; j++)
-        {
-            printf("%d: ", i * DESK_SIZE + j);
-            for(int k = 0; k < this->possibleMoves[i][j].length(); k++)
-            {
-                printf("'%d'-", this->possibleMoves[i][j].operator [](k).first);
-                printf("'%d'\t ", this->possibleMoves[i][j].operator [](k).second);
+void UgolkiFrame::swapPlayers(){
+    for (int i = 0; i < DESK_SIZE; i++)
+        for (int j = 0; j < DESK_SIZE; j++){
+            switch ( matrix[i][j] ){
+            case UGOLKI_PLAYER_1:
+                matrix[i][j] = UGOLKI_PLAYER_2;
+                break;
+            case UGOLKI_PLAYER_2:
+                matrix[i][j] = UGOLKI_PLAYER_1;
+                break;
             }
-            printf("\n");
         }
 }
