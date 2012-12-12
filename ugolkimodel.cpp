@@ -17,66 +17,93 @@ UgolkiModel::UgolkiModel(UgolkiNetwork *networkRef, UgolkiAI *aiRef, QObject *pa
             SLOT(turnHandler(int,int,int,int)));
 
 }
-/*
-void UgolkiModel::calculatePossibleMoves(UgolkiFrame *someFrame){
-    for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++)
-            someFrame->possibleMoves[i][j].clear();
 
-    for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++)
-            if (someFrame->currentPlayersTurnId == someFrame->matrix[i][j])
-            {
 
-                for (int k = 0; k < DESK_SIZE; k++)
-                    for (int l = 0; l < DESK_SIZE; l++)
-                        someFrame->possibleMoves[i][j] << QPair<int, int>(k,l);
-            }
-}
-*/
 void UgolkiModel::gameOverHandler(){
 
+    bool selfHousePunishment[UGOLKI_MAXPLAYERS];
     int piecesInHouse[UGOLKI_MAXPLAYERS];
-    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++)
-        piecesInHouse[i]=0;
 
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
+        piecesInHouse[i]=0;
+        selfHousePunishment[i]=false;
+    }
+
+    /*
     for (int i = 0; i < UGOLKI_HOUSE_HEIGHT; i++)
         for (int j = 0; j < UGOLKI_HOUSE_WIDTH; j++){
-            if (currentFrame.matrix[i][j] == UGOLKI_PLAYER_1)
+
+
+
+            if (playerId != UGOLKI_PLAYER_EMPTY)
+                if (currentFrame.isInHouse(i, j, playerId))
+                    selfHousePunishment[playerId] = true;
+
+            if (playerId == UGOLKI_PLAYER_1)
                 piecesInHouse[UGOLKI_PLAYER_1]++;
-            if (currentFrame.matrix[DESK_SIZE - i - 1][DESK_SIZE - j -1] == UGOLKI_PLAYER_2)
+            //if (currentFrame.matrix[DESK_SIZE - i - 1][DESK_SIZE - j -1] == UGOLKI_PLAYER_2)
+            if ()
                 piecesInHouse[UGOLKI_PLAYER_2]++;
 
+        }*/
+
+    for (int i = 0; i < DESK_SIZE; i++)
+        for (int j = 0; j < DESK_SIZE; j++){
+            int playerId = currentFrame.matrix[i][j];
+            if (playerId != UGOLKI_PLAYER_EMPTY){
+                if (currentFrame.isInHouse(i,j,currentFrame.playerOpponent(playerId)))
+                    piecesInHouse[playerId]++;
+                if (currentFrame.isInHouse(i,j,playerId)
+                        && currentFrame.turnCount >= UGOLKI_MAXIMUM_TURNS_IN_HOUSE)
+                    selfHousePunishment[playerId] = true;
+
+            }
+
         }
+
 
     int piecesInHouseTotal = 0;
-    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++)
+    bool selfHousePunishmentAll = false;
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
         piecesInHouseTotal += piecesInHouse[i];
+        selfHousePunishmentAll &= selfHousePunishment[i];
+    }
 
-    if (piecesInHouseTotal == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH * UGOLKI_MAXPLAYERS)
+    //Ничья
+    if (piecesInHouseTotal == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH * UGOLKI_MAXPLAYERS
+            || selfHousePunishmentAll){
         emit gameOver(STRING_DRAW);
-    else
-        for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
-            if (piecesInHouse[i] == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH){
+        return;
+    }
 
-                if (gameMode == UGOLKI_MODE_MULTIPLAYER)
-                emit gameOver(QString(STRING_PLAYER
-                                      " " +
-                                      tr("%1").arg(i + 1)
-                                      +
-                                      " "
-                                      STRING_WON));
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
+        if (piecesInHouse[i] == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH){
+            if (gameMode == UGOLKI_MODE_MULTIPLAYER)
+                emit gameOver(QString(STRING_PLAYER " " + tr("%1").arg(i + 1) + " " STRING_WON));
 
-                if (gameMode == UGOLKI_MODE_AI){
-                    if (i == UGOLKI_PLAYER_1)
-                        emit gameOver(STRING_YOU_WON);
-                    if (i == UGOLKI_BOT)
-                        emit gameOver(STRING_YOU_LOST);
-                }
-
-                break;
+            if (gameMode == UGOLKI_MODE_AI){
+                if (i == UGOLKI_PLAYER_1)
+                    emit gameOver(STRING_YOU_WON);
+                if (i == UGOLKI_BOT)
+                    emit gameOver(STRING_YOU_LOST);
             }
+            break;
         }
+
+        if (selfHousePunishment[i] == true){
+            if (gameMode == UGOLKI_MODE_AI)
+                if (i != UGOLKI_BOT)
+                    emit gameOver(STRING_YOU_LOST);
+                else
+                    emit gameOver(STRING_YOU_WON);
+
+            if (gameMode == UGOLKI_MODE_MULTIPLAYER){
+                emit gameOver(QString(STRING_PLAYER " " + tr("%1").arg(currentFrame.playerOpponent(i) + 1) + " " STRING_WON));
+            }
+
+            break;
+        }
+    }
 
 }
 
@@ -108,8 +135,6 @@ bool UgolkiModel::checkBoundsOfSquare(int currentRow, int currentColumn) {
     return true;
 
 }
-
-
 
 void UgolkiModel::watchNeighboringSquares(int i, int j, UgolkiFrame *frame) {
     QPair<int,int> turn;
@@ -203,7 +228,7 @@ void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame) {
         for (int j = 0; j < DESK_SIZE; j++){
             frame->possibleMoves[i][j].clear();
             visitedSquares[i][j] = false;
-    }
+        }
 
     for(int i = 0; i < DESK_SIZE; i++)
         for(int j = 0; j < DESK_SIZE; j++)
@@ -223,7 +248,5 @@ void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame) {
             }
         }
 }
-
-
 
 

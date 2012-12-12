@@ -18,12 +18,10 @@ signals:
     void botTurnReady(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
 
 private slots:
-    double bestMove(UgolkiFrame *frame, int depth);
-    double criteriaDistanceToHouse(UgolkiFrame *frame);
-    double criteriaPiecesInHouse(UgolkiFrame *frame);
-    double criteriaHousePunishment(UgolkiFrame *frame);
-
-    double distance(int i, int j, int k, int l);
+    //todo: separate criterias into one function
+    double criteriaDistanceToOpponentsHouse(UgolkiFrame *frame, bool invert = false);
+    double criteriaPiecesInHouse(UgolkiFrame *frame, bool invert = false);
+    double criteriaHousePunishment(UgolkiFrame *frame, bool invert = false);
 
 public slots:
     void calculateBestMove(UgolkiFrame* frame);

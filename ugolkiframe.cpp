@@ -24,9 +24,6 @@ UgolkiFrame::UgolkiFrame(const UgolkiFrame *frameToClone){
             matrix[i][j] = frameToClone->matrix[i][j];
         }
 
-
-    //memcpy(this, frameToClone, sizeof(*frameToClone));
-
 }
 
 void UgolkiFrame::movePiece(int oldPosRow, int oldPosColumn,
@@ -54,7 +51,6 @@ void UgolkiFrame::movePiece(int oldPosRow, int oldPosColumn,
 
 void UgolkiFrame::resetFrame(){
 
-
     currentPlayersTurnId = UGOLKI_PLAYER_1;
     turnCount = 0;
 
@@ -71,8 +67,6 @@ void UgolkiFrame::resetFrame(){
             matrix[i][j] = UGOLKI_PLAYER_2;
         }
 
-
-
     frameChanged(this);
 }
 
@@ -85,16 +79,39 @@ bool UgolkiFrame::validateMove(int oldPosRow, int oldPosColumn,
 
 }
 
-void UgolkiFrame::swapPlayers(){
-    for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++){
-            switch ( matrix[i][j] ){
-            case UGOLKI_PLAYER_1:
-                matrix[i][j] = UGOLKI_PLAYER_2;
-                break;
-            case UGOLKI_PLAYER_2:
-                matrix[i][j] = UGOLKI_PLAYER_1;
-                break;
-            }
-        }
+
+bool UgolkiFrame::isInHouse(int row, int column, int playersHouseId){
+    if (distance(row,
+                 this->playerHouse[playersHouseId].second,
+                 this->playerHouse[playersHouseId].first,
+                 this->playerHouse[playersHouseId].second
+                 ) < UGOLKI_HOUSE_HEIGHT &&
+            distance(this->playerHouse[playersHouseId].first,
+                     column,
+                     this->playerHouse[playersHouseId].first,
+                     this->playerHouse[playersHouseId].second) < UGOLKI_HOUSE_WIDTH
+            )
+        return true;
+    return false;
+}
+
+int UgolkiFrame::playerOpponent(int player){
+    if (player == UGOLKI_PLAYER_1)
+        return UGOLKI_PLAYER_2;
+    if (player == UGOLKI_PLAYER_2)
+        return UGOLKI_PLAYER_1;
+    return UGOLKI_PLAYER_1;
+}
+
+
+
+double UgolkiFrame::distance(int i, int j, int k, int l){
+    return sqrt(pow(k - i, 2) + pow(l - j, 2));
+}
+
+
+double UgolkiFrame::distanceToHouse(int row, int column, int playersHouseId){
+    return distance(row, column,
+                    this->playerHouse[playersHouseId].first,
+                    this->playerHouse[playersHouseId].second);
 }

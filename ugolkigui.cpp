@@ -176,7 +176,9 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
         deskLayout.setColumnStretch(i, 1);
         deskLayout.setRowStretch(i, 1);
         for (int j = 0; j < DESK_SIZE; j++){
+
             int playerPieceOnCurrentCell = frame->matrix[i][j];
+            bool isSelected = false;
             bool isSelectable = false;
             bool isReselectable = false;
 
@@ -185,8 +187,12 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
                     !model->currentFrame.possibleMoves[i][j].isEmpty())
                 isReselectable = isSelectable = true;
 
+            if (pieceSelected == true && selectedPiece == i * DESK_SIZE + j)
+                isSelected = true;
+
             if (pieceSelected == false && !model->currentFrame.possibleMoves[i][j].isEmpty())
-                isSelectable = true;
+                isReselectable = isSelectable = true;
+
 
             if (pieceSelected == true && model->currentFrame.possibleMoves
                     [selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
@@ -194,14 +200,15 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
             if (gameMode == UGOLKI_MODE_AI &&
                     model->currentFrame.currentPlayersTurnId != UGOLKI_PLAYER_1){
-                isSelectable = false;
-
+                isSelected = isReselectable = false;
             }
 
             deskButtons[i * DESK_SIZE + j]->setFont(font);
             deskButtons[i * DESK_SIZE + j]->setFixedSize(cellSize, cellSize);
             deskButtons[i * DESK_SIZE + j]->setEnabled(isSelectable);
-            deskButtons[i * DESK_SIZE + j]->setStyleSheet(getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelectable, isReselectable));
+
+            QString styleSheet = getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelected, isReselectable);
+            deskButtons[i * DESK_SIZE + j]->setStyleSheet(styleSheet);
 
             if (playerPieceOnCurrentCell != UGOLKI_PLAYER_EMPTY)
                 deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
@@ -212,11 +219,7 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
         }
     }
-
-    //infoPrint(tr("Current turn: %1").arg(model->currentFrame.turnCount));
-
 }
-
 
 void UgolkiGUI::showMenu(){
     notificationWidget.hide();
@@ -295,7 +298,7 @@ void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
 
 }
 
-const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelectable, bool isReselectable){
+const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelected, bool isReselectable){
 
     QString pieceColor, pressedPieceColor;
     switch (playerId){
@@ -314,15 +317,22 @@ const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSe
 
     QString cellColor;
 
-    if (isSelectable) {
+
+    if (isWhiteCell)
+        cellColor = COLOR_BLACK;
+    else
+        cellColor = COLOR_WHITE;
+
+    if (isReselectable) {
+        cellColor = COLOR_CELL_RESELECTABLE;
+    }
+    if (isSelected) {
         cellColor = COLOR_CELL_SELECTED;
-        if (isReselectable)
-            cellColor = COLOR_CELL_RESELECTABLE;
-    } else
-        if (isWhiteCell)
-            cellColor = COLOR_BLACK;
-        else
-            cellColor = COLOR_WHITE;
+    }
+
+
+
+
 
     const QString genericStyleSheet ("QPushButton {"
                                      "border: 1px solid #888888;"

@@ -19,9 +19,6 @@ private:
     UgolkiNetwork *network;
     UgolkiAI *ai;
 
-
-
-
 signals:
     void gameOver(QString reason);
     void modelMessage(QString message);
@@ -38,8 +35,6 @@ private slots:
                         UgolkiFrame *currentFrame,
                         bool visitedSquares[DESK_SIZE][DESK_SIZE],
                         int *firstSquare);
-
-
 
 public slots:
     void calculatePossibleMoves(UgolkiFrame *currentFrame);

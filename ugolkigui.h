@@ -67,7 +67,7 @@ private slots:
     void infoPrint(QString);
     void sendMessageButtonClicked();
 
-    const QString getStyleSheet(int playerId, bool isWhiteCell, bool isSelectable = false, bool isReselectable = false);
+    const QString getStyleSheet(int playerId, bool isWhiteCell, bool isSelected = false, bool isReselectable = false);
 
 
 

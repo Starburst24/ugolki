@@ -13,8 +13,5 @@ int main(int argc, char *argv[])
     UgolkiModel model(&network, &ai);
     UgolkiGUI gui(&model, &network);
 
-
-
-
     return a.exec();
 }

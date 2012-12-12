@@ -4,6 +4,7 @@
 #include <QList>
 #include <QPair>
 #include "variables.h"
+#include "math.h"
 #include <QObject>
 
 class UgolkiFrame : public QObject
@@ -28,7 +29,17 @@ public slots:
     void resetFrame();
     void movePiece(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
     bool validateMove(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
-    void swapPlayers();
+
+    double distance(int i, int j, int k, int l);
+    double distanceToHouse(int row, int column, int playersHouseId);
+
+
+
+    bool isInHouse(int row, int column, int playersHouseId);
+
+    int playerOpponent(int player);
+
+
 
 };
 

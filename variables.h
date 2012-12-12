@@ -19,12 +19,18 @@
 
 #define UGOLKI_MAXPLAYERS 2
 
-/* criteria importance */
-#define AI_GAME_TREE_DEPTH 2
+#define UGOLKI_MAXIMUM_TURNS_IN_HOUSE 40
 
-#define AI_CRITERIA_DISTANCE_TO_HOUSE 1.0
-#define AI_CRITERIA_PIECES_IN_HOUSE 5.0
-#define AI_CRITERIA_HOUSE_PUNISHMENT 0.0003
+/* criteria importance */
+//for future use
+#define AI_GAME_TREE_DEPTH 1
+
+#define AI_MEAN 190.0
+
+#define AI_CRITERIA_DISTANCE_TO_HOUSE 100.0
+#define AI_CRITERIA_PIECES_IN_HOUSE 1500.0
+#define AI_CRITERIA_HOUSE_PUNISHMENT 0.000000003
+#define AI_CRITERIA_NEIGHBORS 1.0
 
 /* *********************************** */
 
