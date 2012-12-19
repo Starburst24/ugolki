@@ -158,10 +158,9 @@ void UgolkiGUI::showNotification(QString message){
 
     notificationLabel.setText(message);
 
-    deskWidget->hide();
     menuWidget.hide();
+    deskWidget->setEnabled(false);
     notificationWidget.show();
-
 
 }
 
@@ -225,6 +224,7 @@ void UgolkiGUI::showMenu(){
     notificationWidget.hide();
     deskWidget->hide();
     menuWidget.show();
+    deskWidget->setEnabled(true);
 }
 
 void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){

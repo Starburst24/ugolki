@@ -2,9 +2,10 @@
 #define UGOLKIAI_H
 
 #include <QObject>
+#include <QHash>
 #include "ugolkiframe.h"
+#include "stdlib.h"
 #include "variables.h"
-
 
 class UgolkiAI : public QObject
 {
@@ -12,17 +13,17 @@ class UgolkiAI : public QObject
 public:
     explicit UgolkiAI(QObject *parent = 0);
     
+private:
+    QHash<QByteArray, UgolkiFrame*> *frameCache;
 signals:
     void turnTask(UgolkiFrame *frame);
     void calculatePossibleMovesTask(UgolkiFrame *frame);
     void botTurnReady(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
 
 private slots:
-    //todo: separate criterias into one function
-    double criteriaDistanceToOpponentsHouse(UgolkiFrame *frame, bool invert = false);
-    double criteriaPiecesInHouse(UgolkiFrame *frame, bool invert = false);
-    double criteriaHousePunishment(UgolkiFrame *frame, bool invert = false);
-
+    double alphaBetaPruning(UgolkiFrame *rootFrame, int depth, double alpha, double beta, int playerId, int opponentId);
+    double heuristicValue(UgolkiFrame *frame, int playerId, int opponentId);
+    bool isPlayerInHouse(UgolkiFrame *frame, int playerId, int opponentId);
 public slots:
     void calculateBestMove(UgolkiFrame* frame);
 };

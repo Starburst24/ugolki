@@ -61,12 +61,27 @@ void UgolkiFrame::resetFrame(){
         }
 
 
+    /*original*/
     for (int i = 0; i < UGOLKI_HOUSE_HEIGHT; i++)
         for (int j = 0; j < UGOLKI_HOUSE_WIDTH; j++){
             matrix[DESK_SIZE - i - 1][DESK_SIZE - j - 1] = UGOLKI_PLAYER_1;
             matrix[i][j] = UGOLKI_PLAYER_2;
         }
 
+
+
+    /* debug
+    for (int i = 0; i < UGOLKI_HOUSE_HEIGHT; i++)
+        for (int j = 0; j < UGOLKI_HOUSE_WIDTH; j++){
+            if (i == j && j == 0)
+                continue;
+            matrix[DESK_SIZE - i - 1][DESK_SIZE - j - 1] = UGOLKI_PLAYER_2;
+            matrix[i][j] = UGOLKI_PLAYER_1;
+        }
+
+    matrix[4][4] = UGOLKI_PLAYER_1;
+     matrix[4][5] = UGOLKI_PLAYER_2;
+*/
     frameChanged(this);
 }
 
@@ -74,22 +89,15 @@ void UgolkiFrame::resetFrame(){
 
 bool UgolkiFrame::validateMove(int oldPosRow, int oldPosColumn,
                                int newPosRow, int newPosColumn){
-    QPair<int, int> pair(newPosRow, newPosColumn);
-    return possibleMoves[oldPosRow][oldPosColumn].contains(pair);
+   // QPair<int, int> pair(newPosRow, newPosColumn);
+    return possibleMoves[oldPosRow][oldPosColumn].contains(qMakePair(newPosRow, newPosColumn));
 
 }
 
 
 bool UgolkiFrame::isInHouse(int row, int column, int playersHouseId){
-    if (distance(row,
-                 this->playerHouse[playersHouseId].second,
-                 this->playerHouse[playersHouseId].first,
-                 this->playerHouse[playersHouseId].second
-                 ) < UGOLKI_HOUSE_HEIGHT &&
-            distance(this->playerHouse[playersHouseId].first,
-                     column,
-                     this->playerHouse[playersHouseId].first,
-                     this->playerHouse[playersHouseId].second) < UGOLKI_HOUSE_WIDTH
+    if (abs(this->playerHouse[playersHouseId].first - row) < UGOLKI_HOUSE_HEIGHT &&
+            abs(this->playerHouse[playersHouseId].second - column) < UGOLKI_HOUSE_WIDTH
             )
         return true;
     return false;

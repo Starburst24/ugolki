@@ -181,7 +181,7 @@ void UgolkiModel::searchForJumps(int i, int j,
         if(frame->matrix[i - 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i - 2][j] != true)
             if(frame->matrix[i - 2][j] == UGOLKI_PLAYER_EMPTY)
             {
-                visitedSquares[i - 2][j] = true;
+              //  visitedSquares[i - 2][j] = true;
                 searchForJumps(i - 2, j, frame, visitedSquares, firstSquare);
             }
 
@@ -190,7 +190,7 @@ void UgolkiModel::searchForJumps(int i, int j,
         if(frame->matrix[i + 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i + 2][j] != true)
             if(frame->matrix[i + 2][j] == UGOLKI_PLAYER_EMPTY)
             {
-                visitedSquares[i + 2][j] = true;
+               // visitedSquares[i + 2][j] = true;
                 searchForJumps(i + 2, j, frame, visitedSquares, firstSquare);
             }
 
@@ -200,7 +200,7 @@ void UgolkiModel::searchForJumps(int i, int j,
         if(frame->matrix[i][j + 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j + 2] != true)
             if(frame->matrix[i][j + 2] == UGOLKI_PLAYER_EMPTY)
             {
-                visitedSquares[i][j + 2] = true;
+              //  visitedSquares[i][j + 2] = true;
                 searchForJumps(i, j + 2, frame, visitedSquares, firstSquare);
             }
 
@@ -209,7 +209,7 @@ void UgolkiModel::searchForJumps(int i, int j,
         if(frame->matrix[i][j - 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j -2 ] != true)
             if(frame->matrix[i][j - 2] == UGOLKI_PLAYER_EMPTY)
             {
-                visitedSquares[i][j - 2] = true;
+              //  visitedSquares[i][j - 2] = true;
                 searchForJumps(i, j - 2, frame, visitedSquares, firstSquare);
             }
 
@@ -222,12 +222,13 @@ void UgolkiModel::searchForJumps(int i, int j,
 }
 
 void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame) {
+
     bool visitedSquares[DESK_SIZE][DESK_SIZE];
 
     for (int i = 0; i < DESK_SIZE; i++)
         for (int j = 0; j < DESK_SIZE; j++){
             frame->possibleMoves[i][j].clear();
-            visitedSquares[i][j] = false;
+            //visitedSquares[i][j] = false;
         }
 
     for(int i = 0; i < DESK_SIZE; i++)
@@ -238,13 +239,17 @@ void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame) {
             {
                 int firstSquare = i * DESK_SIZE + j;
 
-                watchNeighboringSquares(i, j, frame);
-
                 for(int k = 0; k < DESK_SIZE; k++)
-                    for(int l = 0; l < DESK_SIZE; l++)
-                        visitedSquares[k][l] = false;
+                     for(int l = 0; l < DESK_SIZE; l++)
+                         visitedSquares[k][l] = false;
 
+                watchNeighboringSquares(i, j, frame);
                 searchForJumps(i, j, frame, visitedSquares, &firstSquare);
+
+
+
+
+
             }
         }
 }

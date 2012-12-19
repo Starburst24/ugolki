@@ -20,12 +20,18 @@ public:
     int turnCount;
     QPair<int, int> playerHouse[ UGOLKI_MAXPLAYERS ];
 
+    //criterions
+    double averageDistanceToOpponentsHouse[ UGOLKI_MAXPLAYERS ];
+
+
+
 private:
 
 signals:
     void frameChanged(UgolkiFrame* thisFrame);
 
 public slots:
+
     void resetFrame();
     void movePiece(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
     bool validateMove(int oldPosRow, int oldPosColumn, int newPosRow, int newPosColumn);
