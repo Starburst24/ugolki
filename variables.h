@@ -13,10 +13,7 @@
 /* BOT */
 #define AI_GAME_TREE_DEPTH 3
 
-
-
-
-  #define AI_MEAN 15
+#define AI_MEAN 15
 
 #define AI_CRITERIA_DISTANCE_TO_HOUSE 100.0
 #define AI_CRITERIA_DISTANCE_TO_HOUSE_GRADE 3
@@ -27,14 +24,6 @@
 
 #define AI_WON_REWARD 2000000
 
-/*
-
-#define AI_MEAN 0
-
-#define AI_CRITERIA_DISTANCE_TO_HOUSE 2.0
-#define AI_CRITERIA_PIECES_IN_HOUSE 10.0
-#define AI_CRITERIA_HOUSE_PUNISHMENT 0.05
-#define AI_WON_REWARD 2000000*/
 
 /* *********************************** */
 

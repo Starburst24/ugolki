@@ -1,5 +1,5 @@
 #include "ugolkiframe.h"
-
+#include <cmath>
 UgolkiFrame::UgolkiFrame(QObject *parent) :
     QObject(parent)
 {
@@ -94,10 +94,9 @@ bool UgolkiFrame::validateMove(int oldPosRow, int oldPosColumn,
 
 }
 
-
 bool UgolkiFrame::isInHouse(int row, int column, int playersHouseId){
-    if (abs(this->playerHouse[playersHouseId].first - row) < UGOLKI_HOUSE_HEIGHT &&
-            abs(this->playerHouse[playersHouseId].second - column) < UGOLKI_HOUSE_WIDTH
+    if (fabs(this->playerHouse[playersHouseId].first - row) < UGOLKI_HOUSE_HEIGHT &&
+            fabs(this->playerHouse[playersHouseId].second - column) < UGOLKI_HOUSE_WIDTH
             )
         return true;
     return false;

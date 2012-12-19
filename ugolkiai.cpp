@@ -122,13 +122,13 @@ double UgolkiAI::alphaBetaPruning(UgolkiFrame *frame, int depth,
                      possibleMove++){
 
 
-                    UgolkiFrame *childFrame = new UgolkiFrame(frame);
-                    childFrame->movePiece(oldPosRow, oldPosColumn,
+                    UgolkiFrame childFrame(frame);
+                    childFrame.movePiece(oldPosRow, oldPosColumn,
                                           frame->possibleMoves[oldPosRow][oldPosColumn].at(possibleMove).first,
                                           frame->possibleMoves[oldPosRow][oldPosColumn].at(possibleMove).second
                                           );
 
-                    double gamma = alphaBetaPruning(childFrame, depth - 1,
+                    double gamma = alphaBetaPruning(&childFrame, depth - 1,
                                                     alpha, beta,
                                                     opponentId, playerId);
 
@@ -156,13 +156,13 @@ double UgolkiAI::alphaBetaPruning(UgolkiFrame *frame, int depth,
 
 
 
-                    UgolkiFrame *childFrame = new UgolkiFrame(frame);
-                    childFrame->movePiece(oldPosRow, oldPosColumn,
+                    UgolkiFrame childFrame(frame);
+                    childFrame.movePiece(oldPosRow, oldPosColumn,
                                           frame->possibleMoves[oldPosRow][oldPosColumn].at(possibleMove).first,
                                           frame->possibleMoves[oldPosRow][oldPosColumn].at(possibleMove).second
                                           );
 
-                    double gamma = alphaBetaPruning(childFrame, depth - 1,
+                    double gamma = alphaBetaPruning(&childFrame, depth - 1,
                                                     alpha, beta,
                                                     opponentId, playerId);
 

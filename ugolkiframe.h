@@ -4,7 +4,8 @@
 #include <QList>
 #include <QPair>
 #include "variables.h"
-#include "math.h"
+//#include "math.h"
+#include <cmath>
 #include <QObject>
 
 class UgolkiFrame : public QObject
