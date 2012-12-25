@@ -6,8 +6,6 @@
 #include "ugolkiai.h"
 #include "ugolkinetwork.h"
 
-
-
 class UgolkiModel : public QObject
 {
     Q_OBJECT
@@ -40,8 +38,6 @@ public slots:
     void calculatePossibleMoves(UgolkiFrame *currentFrame);
     void turnHandler(int oldPosRow, int oldPosColumn,
                      int newPosRow, int newPosColumn);
-
-
 };
 
 #endif // UGOLKIMODEL_H

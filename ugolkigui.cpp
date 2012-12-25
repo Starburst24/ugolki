@@ -9,122 +9,100 @@ UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *
     network = networkRef;
 
     /* ************************************************************* */
-    /* Настраиваемокно уведомления */
+    // настраиваем окно уведомления
+    QFont notificationFont;
 
     notificationLayout.addWidget(&notificationLabel);
-    notificationLayout.addWidget(&notificationButton);
+    notificationLayout.addWidget(&notificationButton);    
 
-    QFont notificationFont;
     notificationFont.setPixelSize(NOTIFICATION_FONT_SIZE_PIXEL);
-
-    //notificationButton.setFont(notificationFont);
     notificationLabel.setFont(notificationFont);
-
     notificationButton.setText(STRING_BACK_TO_MENU);
-
-
     notificationWidget.setLayout(&notificationLayout);
     notificationWidget.setWindowTitle(STRING_APPLICATION_NAME
                                       " - " STRING_NOTIFICATION);
 
+    // при завершении игры открываем окно уведомлений
     connect(model, SIGNAL(gameOver(QString)), SLOT(showNotification(QString)));
     connect(&notificationButton, SIGNAL(clicked()), SLOT(showMenu()));
-    /* Закончили настраивать окно уведомления */
-    /* ************************************************************* */
-
 
     /* ************************************************************* */
-    /* Настраиваем главное меню */
+    // настраиваем главное меню
+    QFont menuButtonsFont;
+
     menuButtonsSignalMapper = new QSignalMapper();
 
-    /* Для каждого режима нужно создать кнопку и прикрутить ее к карте кнопок */
-    /* а также к вертикальному лейауту */
-
-
-    QFont menuButtonsFont;
+    // для каждого режима нужно создать кнопку и прикрутить ее к карте кнопок
+    // а также к вертикальному лейауту
     menuButtonsFont.setPixelSize(MENU_BUTTONS_FONT_SIZE_PIXEL);
 
-
-    /* Для всех кнопок режима */
-    for (int buttonId = 0; buttonId < UGOLKI_MODES; buttonId++){
-
-        /* Создаем новую кнопку режима и заносим ее в список кнопок меню */
+    // для всех кнопок режима
+    for (int buttonId = 0; buttonId < UGOLKI_MODES; buttonId++) {
+        // создаем новую кнопку режима и заносим ее в список кнопок меню
         menuButtons << new QPushButton;
 
         menuButtons[buttonId]->setFont(menuButtonsFont);
         menuButtons[buttonId]->setFixedHeight(MENU_BUTTONS_HEIGHT_FOR_FONT_MULTIPLICATOR *
                                               MENU_BUTTONS_FONT_SIZE_PIXEL);
-        /* Соединяем её с картой кнопок меню */
+        // соединяем её с картой кнопок меню
         connect(menuButtons[buttonId], SIGNAL(clicked()), menuButtonsSignalMapper, SLOT(map()));
         menuButtonsSignalMapper->setMapping(menuButtons[buttonId], buttonId);
 
-        /* Добавляем кнопку в вертикальную сетку меню для отображения */
+        // добавляем кнопку в вертикальную сетку меню для отображения
         menuLayout.addWidget(menuButtons[buttonId]);
-
     }
 
-    /* Называем и настраиваем кнопки */
+    // называем и настраиваем кнопки
     menuButtons[UGOLKI_MODE_AI]->setText(STRING_MODE_AI);
     menuButtons[UGOLKI_MODE_NETWORK]->setText(STRING_MODE_NETWORK);
     menuButtons[UGOLKI_MODE_MULTIPLAYER]->setText(STRING_MODE_MULTIPLAYER);
 
-
-    /* Карта кнопок соединяется с обработчиком нажатий. Обработчик в зависимости от */
-    /* нажатия организует нужный режим */
+    // карта кнопок соединяется с обработчиком нажатий. обработчик в зависимости от
+    // нажатия организует нужный режим
     connect(menuButtonsSignalMapper, SIGNAL(mapped(const int &)),
             this, SLOT(menuButtonClicked(const int &)));
 
-    /* Устанавливаем наш лейаут в виджет меню */
+    // устанавливаем наш лейаут в виджет меню
     menuWidget.setLayout(&menuLayout);
     menuWidget.setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-
     menuWidget.setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MAIN_MENU);
-    /* Закончили настраивать главное меню */
-    /* ************************************************************* */
-
 
     /* ************************************************************* */
-    /* Настраиваем доску */
+    // настраиваем доску
     deskWidget = this;
-
     deskWidget->setFixedSize(0, 0);
     deskButtonsSignalMapper = new QSignalMapper();
 
-    /* Создаем кнопки игрового поля и прикручиваем их к карте кнопок */
-    /* а также к сеточному лейауту */
+    // создаем кнопки игрового поля и прикручиваем их к карте кнопок
+    // а также к сеточному лейауту
 
-    /* Для всех кнопок игрового поля */
-    for (int buttonId = 0; buttonId < DESK_SIZE * DESK_SIZE; buttonId++){
+    // для всех кнопок игрового поля
+    for (int buttonId = 0; buttonId < DESK_SIZE * DESK_SIZE; buttonId++) {
 
-        /* Создаем новую кнопку поля и заносим ее в список */
+        // создаем новую кнопку поля и заносим ее в список
         deskButtons << new QPushButton;
-
         deskButtons[buttonId]->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
-        /* Соединяем её с картой кнопок игрового поля */
+        // соединяем её с картой кнопок игрового поля
         connect(deskButtons[buttonId], SIGNAL(clicked()), deskButtonsSignalMapper, SLOT(map()));
         deskButtonsSignalMapper->setMapping(deskButtons[buttonId], buttonId);
 
-        /* Добавляем кнопку в сетку меню для отображения */
+        // Добавляем кнопку в сетку меню для отображения
         deskLayout.addWidget(deskButtons[buttonId],
                              buttonId / DESK_SIZE,
                              buttonId % DESK_SIZE);
     }
 
-    /* Карта кнопок соединяется с обработчиком нажатий */
+    // Карта кнопок соединяется с обработчиком нажатий
     connect(deskButtonsSignalMapper, SIGNAL(mapped(const int &)),
             this, SLOT(deskButtonClicked(const int &)));
 
-
-
-
     deskLayout.setSpacing(0);
-
     deskVerticalLayout.insertLayout(0, &deskLayout);
 
+    /* ************************************************************* */
+    // настраиваем информационное поле
     informationTextEdit.setReadOnly(true);
-
-
     informationTextEdit.setMaximumHeight(DESK_INFORMATION_TABLE_PIXEL_HEIGHT);
 
     QHBoxLayout *messageLayout = new QHBoxLayout;
@@ -143,40 +121,35 @@ UgolkiGUI::UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *networkRef, QWidget *
             SIGNAL(frameChanged(UgolkiFrame*)),
             SLOT(drawFrame(UgolkiFrame*)));
 
-    /* Закончили настраивать доску */
-    /* ************************************************************* */
-
-
-    /* Запускаем главное меню */
+    // Запускаем главное меню
     showMenu();
-
 }
 
-
-
-void UgolkiGUI::showNotification(QString message){
-
+void UgolkiGUI::showNotification(QString message)
+{
+    // показываем сообщение
     notificationLabel.setText(message);
-
+    // закрываем главное окно, показываем окно уведомлений
     menuWidget.hide();
     deskWidget->setEnabled(false);
     notificationWidget.show();
-
 }
 
-
-void UgolkiGUI::drawFrame(UgolkiFrame *frame){
-
+void UgolkiGUI::drawFrame(UgolkiFrame *frame)
+{
+    // настройка шрифтов
     QFont font;
     font.setPixelSize(DESK_CELL_FONT_PIXEL_SIZE);
     int cellSize = DESK_SIZE_PIXEL / DESK_SIZE;
 
-    for (int i = 0; i < DESK_SIZE; i++){
+    for (int i = 0; i < DESK_SIZE; i++) {
+        // делаем нерастяжимыми клетки поля
         deskLayout.setColumnStretch(i, 1);
         deskLayout.setRowStretch(i, 1);
-        for (int j = 0; j < DESK_SIZE; j++){
-
+        for (int j = 0; j < DESK_SIZE; j++) {
+            // id игрока камня текущей клетки
             int playerPieceOnCurrentCell = frame->matrix[i][j];
+            // свойства клетки i,j по умолчанию
             bool isSelected = false;
             bool isSelectable = false;
             bool isReselectable = false;
@@ -188,49 +161,48 @@ void UgolkiGUI::drawFrame(UgolkiFrame *frame){
 
             if (pieceSelected == true && selectedPiece == i * DESK_SIZE + j)
                 isSelected = true;
-
+            // на клетку можно нажать, т.к. у неё есть ходы
             if (pieceSelected == false && !model->currentFrame.possibleMoves[i][j].isEmpty())
                 isReselectable = isSelectable = true;
 
-
+            // на клетку можно нажать т.к. в неё можно сходить
             if (pieceSelected == true && model->currentFrame.possibleMoves
                     [selectedPiece / DESK_SIZE][selectedPiece % DESK_SIZE].contains(QPair<int,int>(i,j)))
                 isSelectable = true;
 
+            // запрет на нажатие камней бота
             if (gameMode == UGOLKI_MODE_AI &&
-                    model->currentFrame.currentPlayersTurnId != UGOLKI_PLAYER_1){
+                    model->currentFrame.currentPlayersTurnId != UGOLKI_PLAYER_1) {
                 isSelected = isReselectable = false;
             }
 
             deskButtons[i * DESK_SIZE + j]->setFont(font);
             deskButtons[i * DESK_SIZE + j]->setFixedSize(cellSize, cellSize);
             deskButtons[i * DESK_SIZE + j]->setEnabled(isSelectable);
-
+            // применение стилей оформления
             QString styleSheet = getStyleSheet(playerPieceOnCurrentCell, ((j + i) % 2), isSelected, isReselectable);
             deskButtons[i * DESK_SIZE + j]->setStyleSheet(styleSheet);
-
+            // отрисовка камней на доске
             if (playerPieceOnCurrentCell != UGOLKI_PLAYER_EMPTY)
                 deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8("●"));
             else
                 deskButtons[i * DESK_SIZE + j]->setText(QString::fromUtf8(""));
-
-
-
         }
     }
 }
 
-void UgolkiGUI::showMenu(){
+void UgolkiGUI::showMenu()
+{
     notificationWidget.hide();
     deskWidget->hide();
     menuWidget.show();
     deskWidget->setEnabled(true);
 }
 
-void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
-
-    /* выбираем фишку для хода если не выбрана */
-    if (!pieceSelected){
+void UgolkiGUI::deskButtonClicked(const int &clickedButtonId)
+{
+    // выбираем фишку для хода если не выбрана
+    if (!pieceSelected) {
         selectedPiece = clickedButtonId;
 
         pieceSelected = !pieceSelected;
@@ -238,7 +210,7 @@ void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
         return;
     }
 
-    /* выбираем другую фишку для хода если уже была выбрана другая */
+    // выбираем другую фишку для хода если уже была выбрана другая
     if (model->currentFrame.matrix[clickedButtonId / DESK_SIZE][clickedButtonId % DESK_SIZE]
             == model->currentFrame.currentPlayersTurnId) {
         selectedPiece = clickedButtonId;
@@ -246,19 +218,18 @@ void UgolkiGUI::deskButtonClicked(const int &clickedButtonId){
         return;
     }
 
-    /* нашли куда сходить - и ходим */
+    // нашли куда сходить - и ходим
     pieceSelected = !pieceSelected;
     model->turnHandler(selectedPiece / DESK_SIZE,
                        selectedPiece % DESK_SIZE,
                        clickedButtonId / DESK_SIZE,
                        clickedButtonId % DESK_SIZE);
-
 }
-
+// выбор режима игры
 void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
 
     menuWidget.hide();
-
+    // установка режима в модели
     gameMode = clickedButtonId;
     model->gameMode = gameMode;
 
@@ -269,55 +240,47 @@ void UgolkiGUI::menuButtonClicked(const int &clickedButtonId) {
     messageEdit.hide();
 
     switch (clickedButtonId) {
-
-
-    case UGOLKI_MODE_AI: /* Artificial Intelligence mode */
+    // игра против искусственного интеллекта
+    case UGOLKI_MODE_AI:
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_AI);
         model->currentFrame.resetFrame();
-
         deskWidget->show();
         break;
-
-
-    case UGOLKI_MODE_MULTIPLAYER:   /* Multiplayer mode */
-
-
+    // два человека на одном компьютере
+    case UGOLKI_MODE_MULTIPLAYER:
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_MULTIPLAYER);
         model->currentFrame.resetFrame();
         deskWidget->show();
         break;
-
-
-    case UGOLKI_MODE_NETWORK: /* Network mode */
+    // игра по сети (не реализована - стоит заглушка)
+    case UGOLKI_MODE_NETWORK:
         deskWidget->setWindowTitle(STRING_APPLICATION_NAME " - " STRING_MODE_NETWORK);
         showNotification(STRING_NOT_IMPLEMENTED);
         okButton.show();
         messageEdit.show();
         break;
     }
-
 }
 
-const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelected, bool isReselectable){
-
+// список стилей для камней и клеток
+const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSelected, bool isReselectable)
+{
     QString pieceColor, pressedPieceColor;
-    switch (playerId){
-
+    switch (playerId) {
     default:
+    // первый игрок
     case 0:
         pressedPieceColor = COLOR_PRESSED_PLAYER_1;
         pieceColor = COLOR_PLAYER_1;
         break;
+    // второй игрок
     case 1:
         pressedPieceColor = COLOR_PRESSED_PLAYER_2;
         pieceColor = COLOR_PLAYER_2;
         break;
-
     }
 
     QString cellColor;
-
-
     if (isWhiteCell)
         cellColor = COLOR_BLACK;
     else
@@ -329,10 +292,6 @@ const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSe
     if (isSelected) {
         cellColor = COLOR_CELL_SELECTED;
     }
-
-
-
-
 
     const QString genericStyleSheet ("QPushButton {"
                                      "border: 1px solid #888888;"
@@ -361,7 +320,6 @@ const QString UgolkiGUI::getStyleSheet(int playerId, bool isWhiteCell, bool isSe
                                      "QPushButton:flat {"
                                      "border: none; "
                                      "}");
-
     return genericStyleSheet;
 }
 

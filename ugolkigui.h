@@ -24,22 +24,24 @@ public:
     explicit UgolkiGUI(UgolkiModel *modelRef, UgolkiNetwork *network, QWidget *parent = 0);
 
 private:
-
     UgolkiModel *model;
     UgolkiNetwork *network;
+
     bool pieceSelected;
     int selectedPiece;
     int gameMode;
 
-    /* Menu items */
+    // элементы меню
     QWidget menuWidget;
-    QList<QPushButton*> menuButtons; // list of all buttons
+    // кнопки меню
+    QList<QPushButton*> menuButtons;
     QSignalMapper *menuButtonsSignalMapper;
     QVBoxLayout menuLayout;
 
-    /* Desk items */
+    // элементы игрового поля
     QWidget *deskWidget;
-    QList<QPushButton*> deskButtons; // list of all buttons
+    // кнопки поля - клетки
+    QList<QPushButton*> deskButtons;
     QSignalMapper *deskButtonsSignalMapper;
     QVBoxLayout deskVerticalLayout;
     QGridLayout deskLayout;
@@ -49,9 +51,7 @@ private:
     QList<const QString*> styleDarkForPlayer;
     QList<const QString*> styleBrightForPlayer;
 
-
-
-    /* Notification items */
+    // элементы окна уведомлений
     QWidget notificationWidget;
     QPushButton notificationButton;
     QLabel notificationLabel;
@@ -69,12 +69,8 @@ private slots:
 
     const QString getStyleSheet(int playerId, bool isWhiteCell, bool isSelected = false, bool isReselectable = false);
 
-
-
-signals:
-
-public slots:
-
+    signals:
+    public slots:
 };
 
 #endif // UGOLKIGUI_H

@@ -15,69 +15,54 @@ UgolkiModel::UgolkiModel(UgolkiNetwork *networkRef, UgolkiAI *aiRef, QObject *pa
 
     connect(ai, SIGNAL(botTurnReady(int,int,int,int)),
             SLOT(turnHandler(int,int,int,int)));
-
 }
 
 
-void UgolkiModel::gameOverHandler(){
-
+void UgolkiModel::gameOverHandler()
+{
+    // камень в своём доме
     bool selfHousePunishment[UGOLKI_MAXPLAYERS];
+    // количество камней в чужом доме
     int piecesInHouse[UGOLKI_MAXPLAYERS];
-
-    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
-        piecesInHouse[i]=0;
-        selfHousePunishment[i]=false;
+    // сначало камни все в своём доме, штрафа нет
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++) {
+        piecesInHouse[i] = 0;
+        selfHousePunishment[i] = false;
     }
-
-    /*
-    for (int i = 0; i < UGOLKI_HOUSE_HEIGHT; i++)
-        for (int j = 0; j < UGOLKI_HOUSE_WIDTH; j++){
-
-
-
-            if (playerId != UGOLKI_PLAYER_EMPTY)
-                if (currentFrame.isInHouse(i, j, playerId))
-                    selfHousePunishment[playerId] = true;
-
-            if (playerId == UGOLKI_PLAYER_1)
-                piecesInHouse[UGOLKI_PLAYER_1]++;
-            //if (currentFrame.matrix[DESK_SIZE - i - 1][DESK_SIZE - j -1] == UGOLKI_PLAYER_2)
-            if ()
-                piecesInHouse[UGOLKI_PLAYER_2]++;
-
-        }*/
-
+    // обходим доску
     for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++){
-            int playerId = currentFrame.matrix[i][j];
-            if (playerId != UGOLKI_PLAYER_EMPTY){
-                if (currentFrame.isInHouse(i,j,currentFrame.playerOpponent(playerId)))
+        for (int j = 0; j < DESK_SIZE; j++) {
+            int playerId = currentFrame.matrix[i][j];         
+            if (playerId != UGOLKI_PLAYER_EMPTY) {
+                 // для камня проверяем, находится ли он в доме противника
+                if (currentFrame.isInHouse(i, j, currentFrame.playerOpponent(playerId)))
                     piecesInHouse[playerId]++;
-                if (currentFrame.isInHouse(i,j,playerId)
+                // если он в своём доме и ходов прошло больше допустимого
+                if (currentFrame.isInHouse(i, j, playerId)
                         && currentFrame.turnCount >= UGOLKI_MAXIMUM_TURNS_IN_HOUSE)
                     selfHousePunishment[playerId] = true;
-
-            }
-
+           }
         }
 
-
+    // всего камней в доме противника
     int piecesInHouseTotal = 0;
+    // какой-либо камень в своём доме
     bool selfHousePunishmentAll = false;
-    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++) {
         piecesInHouseTotal += piecesInHouse[i];
         selfHousePunishmentAll &= selfHousePunishment[i];
     }
 
-    //Ничья
+    // ничья: все камни в домах противника
     if (piecesInHouseTotal == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH * UGOLKI_MAXPLAYERS
-            || selfHousePunishmentAll){
+            || selfHousePunishmentAll) {
         emit gameOver(STRING_DRAW);
         return;
     }
 
-    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++){
-        if (piecesInHouse[i] == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH){
+    for (int i = 0; i < UGOLKI_MAXPLAYERS; i++) {
+        // возможность ничьи исключена, у кого все камни в доме - победитель, посылаем соотв. сигнал
+        if (piecesInHouse[i] == UGOLKI_HOUSE_HEIGHT * UGOLKI_HOUSE_WIDTH) {
             if (gameMode == UGOLKI_MODE_MULTIPLAYER)
                 emit gameOver(QString(STRING_PLAYER " " + tr("%1").arg(i + 1) + " " STRING_WON));
 
@@ -87,9 +72,11 @@ void UgolkiModel::gameOverHandler(){
                 if (i == UGOLKI_BOT)
                     emit gameOver(STRING_YOU_LOST);
             }
+            // победитель найден - выход из цикла
             break;
         }
 
+        // камень до сих пор в своём доме, оппонент такого игрока выигрывает
         if (selfHousePunishment[i] == true){
             if (gameMode == UGOLKI_MODE_AI)
                 if (i != UGOLKI_BOT)
@@ -104,154 +91,140 @@ void UgolkiModel::gameOverHandler(){
             break;
         }
     }
-
 }
 
 void UgolkiModel::turnHandler(int oldPosRow, int oldPosColumn,
-                              int newPosRow, int newPosColumn){
-
-    /* validation of the move */
-    if (!currentFrame.validateMove(oldPosRow, oldPosColumn, newPosRow, newPosColumn)){
+                              int newPosRow, int newPosColumn)
+{
+    // некорректный ход - закрываем приложение
+    if (!currentFrame.validateMove(oldPosRow, oldPosColumn, newPosRow, newPosColumn)) {
         emit gameOver(STRING_ERROR_DATA_PROTOCOL);
     }
-
-    /* moving the piece */
+    // двигаем камень
     currentFrame.movePiece(oldPosRow, oldPosColumn, newPosRow, newPosColumn);
-
+    // только что сделал ход второй игрок, проверяем, не завершилась ли партия
     if (currentFrame.currentPlayersTurnId == UGOLKI_PLAYER_1)
         gameOverHandler();
-
+    // игра против ии: ходит бот, считаем лучший ход для него
     if (gameMode == UGOLKI_MODE_AI && currentFrame.currentPlayersTurnId == UGOLKI_PLAYER_2){
         ai->calculateBestMove(&this->currentFrame);
     }
 }
 
-bool UgolkiModel::checkBoundsOfSquare(int currentRow, int currentColumn) {
-
-    if(currentRow < 0 || currentRow > DESK_SIZE - 1)
+bool UgolkiModel::checkBoundsOfSquare(int currentRow, int currentColumn)
+{
+    // проверяем, может ли клетка иметь такие координаты
+    if (currentRow < 0 || currentRow > DESK_SIZE - 1)
         return false;
-    if(currentColumn < 0 || currentColumn > DESK_SIZE - 1)
+    if (currentColumn < 0 || currentColumn > DESK_SIZE - 1)
         return false;
     return true;
-
 }
 
-void UgolkiModel::watchNeighboringSquares(int i, int j, UgolkiFrame *frame) {
+// просмотр соседних клеток в поисках хода на них
+void UgolkiModel::watchNeighboringSquares(int i, int j, UgolkiFrame *frame)
+{
     QPair<int,int> turn;
 
-    if(checkBoundsOfSquare(i - 1, j))
-        if(frame->matrix[i - 1][j] == UGOLKI_PLAYER_EMPTY)
+    // смотрим вверх, если клетка сверху существует
+    if (checkBoundsOfSquare(i - 1, j))
+        // она пуста
+        if (frame->matrix[i - 1][j] == UGOLKI_PLAYER_EMPTY)
         {
+            // сделать ход можно, добавляем в список
             turn = qMakePair(i - 1, j);
             frame->possibleMoves[i][j].append(turn);
         }
-
-    if(checkBoundsOfSquare(i, j + 1))
-        if(frame->matrix[i][j + 1] == UGOLKI_PLAYER_EMPTY)
+    // смотрим вправо
+    if (checkBoundsOfSquare(i, j + 1))
+        if (frame->matrix[i][j + 1] == UGOLKI_PLAYER_EMPTY)
         {
             turn = qMakePair(i, j + 1);
             frame->possibleMoves[i][j].append(turn);
         }
-
-    if(checkBoundsOfSquare(i + 1, j))
-        if(frame->matrix[i + 1][j] == UGOLKI_PLAYER_EMPTY)
+    // смотрим вниз
+    if (checkBoundsOfSquare(i + 1, j))
+        if (frame->matrix[i + 1][j] == UGOLKI_PLAYER_EMPTY)
         {
             turn = qMakePair(i + 1, j);
             frame->possibleMoves[i][j].append(turn);
         }
-
-    if(checkBoundsOfSquare(i, j - 1))
-        if(frame->matrix[i][j - 1] == UGOLKI_PLAYER_EMPTY)
+    // смотрим влево
+    if (checkBoundsOfSquare(i, j - 1))
+        if (frame->matrix[i][j - 1] == UGOLKI_PLAYER_EMPTY)
         {
             turn = qMakePair(i, j - 1);
             frame->possibleMoves[i][j].append(turn);
         }
 }
 
+// просмотр возможных прыжков через камни
 void UgolkiModel::searchForJumps(int i, int j,
                                  UgolkiFrame *frame,
                                  bool visitedSquares[DESK_SIZE][DESK_SIZE],
                                  int *firstSquare)
 {
     QPair<int,int> turn;
+    // текущая клетка уже просмотрена
     visitedSquares[i][j] = true;
 
-    // jumping up
-    if(checkBoundsOfSquare(i - 2, j))
-        if(frame->matrix[i - 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i - 2][j] != true)
-            if(frame->matrix[i - 2][j] == UGOLKI_PLAYER_EMPTY)
-            {
-              //  visitedSquares[i - 2][j] = true;
+    // прыжки вверх, если клетка через одну вверху существует
+    if (checkBoundsOfSquare(i - 2, j))
+        // соседняя клетка вверху занята и следующая за ней не просмотрена
+        if (frame->matrix[i - 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i - 2][j] != true)
+            // клетка через одну вверху пуста, продолжаем поиск, начиная с неё
+            if (frame->matrix[i - 2][j] == UGOLKI_PLAYER_EMPTY) {
                 searchForJumps(i - 2, j, frame, visitedSquares, firstSquare);
             }
-
-    // jumping down
-    if(checkBoundsOfSquare(i + 2, j))
-        if(frame->matrix[i + 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i + 2][j] != true)
-            if(frame->matrix[i + 2][j] == UGOLKI_PLAYER_EMPTY)
-            {
-               // visitedSquares[i + 2][j] = true;
+    // прыжки вниз
+    if (checkBoundsOfSquare(i + 2, j))
+        if (frame->matrix[i + 1][j] != UGOLKI_PLAYER_EMPTY && visitedSquares[i + 2][j] != true)
+            if (frame->matrix[i + 2][j] == UGOLKI_PLAYER_EMPTY) {
                 searchForJumps(i + 2, j, frame, visitedSquares, firstSquare);
             }
-
-
-    // jumping right
-    if(checkBoundsOfSquare(i, j + 2))
-        if(frame->matrix[i][j + 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j + 2] != true)
-            if(frame->matrix[i][j + 2] == UGOLKI_PLAYER_EMPTY)
-            {
-              //  visitedSquares[i][j + 2] = true;
+    // прыжки вправо
+    if (checkBoundsOfSquare(i, j + 2))
+        if (frame->matrix[i][j + 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j + 2] != true)
+            if (frame->matrix[i][j + 2] == UGOLKI_PLAYER_EMPTY) {
                 searchForJumps(i, j + 2, frame, visitedSquares, firstSquare);
             }
-
-    // jumping left
-    if(checkBoundsOfSquare(i, j - 2))
-        if(frame->matrix[i][j - 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j -2 ] != true)
-            if(frame->matrix[i][j - 2] == UGOLKI_PLAYER_EMPTY)
-            {
-              //  visitedSquares[i][j - 2] = true;
+    // прыжки влево
+    if (checkBoundsOfSquare(i, j - 2))
+        if (frame->matrix[i][j - 1] != UGOLKI_PLAYER_EMPTY && visitedSquares[i][j -2 ] != true)
+            if (frame->matrix[i][j - 2] == UGOLKI_PLAYER_EMPTY) {
                 searchForJumps(i, j - 2, frame, visitedSquares, firstSquare);
             }
 
-    // add a new turn on each new square
-    if(i * DESK_SIZE + j != *firstSquare)
-    {
+    // добавляем ход с начальной клетки поиска до каждой новой достигнутой
+    if (i * DESK_SIZE + j != *firstSquare) {
         turn = qMakePair(i, j);
         frame->possibleMoves[*firstSquare / DESK_SIZE][*firstSquare % DESK_SIZE].append(turn);
     }
 }
 
-void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame) {
-
+void UgolkiModel::calculatePossibleMoves(UgolkiFrame *frame)
+{
+    // просмотренные клетки для поиска
     bool visitedSquares[DESK_SIZE][DESK_SIZE];
 
+    // очистка старого списка
     for (int i = 0; i < DESK_SIZE; i++)
-        for (int j = 0; j < DESK_SIZE; j++){
+        for (int j = 0; j < DESK_SIZE; j++) {
             frame->possibleMoves[i][j].clear();
-            //visitedSquares[i][j] = false;
         }
 
-    for(int i = 0; i < DESK_SIZE; i++)
-        for(int j = 0; j < DESK_SIZE; j++)
-        {
-            // finding necessary pieces to calculate turns
-            if(frame->matrix[i][j] == frame->currentPlayersTurnId)
-            {
-                int firstSquare = i * DESK_SIZE + j;
-
+    for (int i = 0; i < DESK_SIZE; i++)
+        for (int j = 0; j < DESK_SIZE; j++) {
+            // выбераем камни игрока, который сейчас должен сходить
+            if (frame->matrix[i][j] == frame->currentPlayersTurnId) {
+                // указываем начальную клетку для поиска прыжков
+                int firstSquare = i * DESK_SIZE + j;     
                 for(int k = 0; k < DESK_SIZE; k++)
                      for(int l = 0; l < DESK_SIZE; l++)
                          visitedSquares[k][l] = false;
 
                 watchNeighboringSquares(i, j, frame);
                 searchForJumps(i, j, frame, visitedSquares, &firstSquare);
-
-
-
-
-
             }
         }
 }
-
-

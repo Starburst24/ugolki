@@ -3,9 +3,9 @@
 #include "ugolkimodel.h"
 #include "ugolkinetwork.h"
 
-
 int main(int argc, char *argv[])
 {
+    // запуск приложения
     QApplication a(argc, argv);
 
     UgolkiNetwork network;

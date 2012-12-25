@@ -1,7 +1,6 @@
 #ifndef STYLES_H
 #define STYLES_H
 
-
 #define COLOR_WHITE "#FFFFFF"
 #define COLOR_BLACK "#EEEEEE"
 #define COLOR_CELL_SELECTED "#88FF89"
@@ -14,7 +13,5 @@
 #define COLOR_PLAYER_2 "#111144"
 #define COLOR_PRESSED_PLAYER_2 "#DDDDAA"
 #define COLOR_DISABLED_PLAYER_2 "#CCCC99"
-
-
 
 #endif // STYLES_H

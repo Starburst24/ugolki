@@ -15,6 +15,7 @@ public:
     
 private:
     QHash<QByteArray, UgolkiFrame*> *frameCache;
+
 signals:
     void turnTask(UgolkiFrame *frame);
     void calculatePossibleMovesTask(UgolkiFrame *frame);
@@ -24,6 +25,7 @@ private slots:
     double alphaBetaPruning(UgolkiFrame *rootFrame, int depth, double alpha, double beta, int playerId, int opponentId);
     double heuristicValue(UgolkiFrame *frame, int playerId, int opponentId);
     bool isPlayerInHouse(UgolkiFrame *frame, int playerId, int opponentId);
+
 public slots:
     void calculateBestMove(UgolkiFrame* frame);
 };
